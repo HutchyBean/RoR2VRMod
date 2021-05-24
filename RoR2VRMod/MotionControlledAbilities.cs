@@ -74,8 +74,9 @@ namespace VRMod
             On.RoR2.EquipmentSlot.GetAimRay += GetLeftAimRay;
             On.EntityStates.BaseState.GetAimRay += EditAimray;
 
+            On.EntityStates.GenericBulletBaseState.DoFireEffects += ChangeShotgunFireEffect;
             On.EntityStates.GenericBulletBaseState.GenerateBulletAttack += ChangeShotgunMuzzle;
-            On.EntityStates.GenericProjectileBaseState.FireProjectile += SetFMJMuzzle;
+            On.EntityStates.GenericProjectileBaseState.FireProjectile += SetFMJMuzzle; 
             On.EntityStates.Commando.CommandoWeapon.FirePistol2.FireBullet += CheckPistolBulletMuzzle;
             On.EntityStates.Commando.CommandoWeapon.FireBarrage.FireBullet += PlayBarrageShootAnimation;
             On.EntityStates.Commando.CommandoWeapon.FireFMJ.PlayAnimation += PlayFMJShootAnimation;
@@ -874,19 +875,40 @@ namespace VRMod
             if (!IsLocalPlayer(self.outer.GetComponent<CharacterBody>()))
             {
                 if (self is EntityStates.Commando.CommandoWeapon.FireFMJ)
-                    self.targetMuzzle = "MuzzleLeft";
+                        self.targetMuzzle = "MuzzleLeft";
+                    
+                    
             }
             orig(self);
         }
 
+        private static void ChangeShotgunFireEffect(On.EntityStates.GenericBulletBaseState.orig_DoFireEffects orig, EntityStates.GenericBulletBaseState self)
+        {
+            self.muzzleName = "MuzzleLeft";
+            orig(self);
+        }
         private static BulletAttack ChangeShotgunMuzzle(On.EntityStates.GenericBulletBaseState.orig_GenerateBulletAttack orig, EntityStates.GenericBulletBaseState self, Ray aimRay)
         {
             if (IsLocalPlayer(self.outer.GetComponent<CharacterBody>()) && self is EntityStates.Commando.CommandoWeapon.FireShotgunBlast)
             {
-                Animator animator = GetHandAnimator(!self.muzzleName.Contains("Left"));
+                if (ModConfig.CommandoOneGun.Value)
+                {
+                    // Set animations to only happen on non dom hand
+                    Animator animator = GetHandAnimator(false);
 
-                if (animator)
-                    animator.SetTrigger("Primary");
+                    if (animator)
+                        animator.SetTrigger("Primary");
+                    // Aim from non dom account muzzle
+                    return orig(self, GetHandRayByDominance(false));
+                } else
+                {
+                    Animator animator = GetHandAnimator(!self.muzzleName.Contains("Left"));
+
+                    if (animator)
+                        animator.SetTrigger("Primary");
+                }
+
+                
             }
 
             return orig(self, aimRay);
@@ -896,22 +918,33 @@ namespace VRMod
         {
             if (IsLocalPlayer(self.outer.GetComponent<CharacterBody>()))
             {
-                if (targetMuzzle.Contains("Left"))
+                if (ModConfig.CommandoOneGun.Value)
                 {
-                    self.aimRay = GetHandRayByDominance(false);
-
-                    Animator animator = GetHandAnimator(false);
-
-                    if (animator)
-                        animator.SetTrigger("Primary");
-                }
-                else
-                {
+                    targetMuzzle = "MuzzleRight";
                     Animator animator = GetHandAnimator(true);
 
                     if (animator)
                         animator.SetTrigger("Primary");
+                } else
+                {
+                    if (targetMuzzle.Contains("Left"))
+                    {
+                        self.aimRay = GetHandRayByDominance(false);
+
+                        Animator animator = GetHandAnimator(false);
+
+                        if (animator)
+                            animator.SetTrigger("Primary");
+                    }
+                    else
+                    {
+                        Animator animator = GetHandAnimator(true);
+
+                        if (animator)
+                            animator.SetTrigger("Primary");
+                    }
                 }
+                
             }
 
             orig(self, targetMuzzle);

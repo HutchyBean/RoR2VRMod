@@ -29,7 +29,7 @@ namespace VRMod
         internal static ConfigEntry<bool> UseMotionControls { get; private set; }
         internal static ConfigEntry<bool> LeftDominantHand { get; private set; }
         internal static ConfigEntry<bool> ControllerMovementDirection { get; private set; }
-
+        internal static ConfigEntry<bool> CommandoOneGun { get; private set; }
         internal static void Init()
         {
             ConfigUseOculus = configFile.Bind<bool>(
@@ -139,6 +139,13 @@ namespace VRMod
                 "Use controller direction for movement",
                 false,
                 "When enabled, pushing forward on the joystick will move the character towards the direction the controller is pointing instead of the head."
+            );
+
+            CommandoOneGun = configFile.Bind<bool>(
+                "Controls",
+                "One hand for commando primary",
+                false,
+                "When enabled, Only make the dominant hand fire bullets"
             );
 
             if (!FirstPerson.Value)
