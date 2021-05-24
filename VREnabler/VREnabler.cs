@@ -132,7 +132,7 @@ namespace VRPatcher
 							{
 								using (AssetsFileWriter assetsFileWriter2 = new AssetsFileWriter(memoryStream2))
 								{
-									assetsFileInstance.file.Write(assetsFileWriter2, 0UL, list, 0U, null);
+									assetsFileInstance.file.Write(assetsFileWriter2, 0L, list, 0U, null);
 									assetsFileInstance.stream.Close();
 									File.WriteAllBytes(path, memoryStream2.ToArray());
 								}

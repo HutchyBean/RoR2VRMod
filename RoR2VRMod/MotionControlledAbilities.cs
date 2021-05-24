@@ -875,16 +875,14 @@ namespace VRMod
             if (!IsLocalPlayer(self.outer.GetComponent<CharacterBody>()))
             {
                 if (self is EntityStates.Commando.CommandoWeapon.FireFMJ)
-                        self.targetMuzzle = "MuzzleLeft";
-                    
-                    
+                        self.targetMuzzle = "MuzzleLeft";    
             }
             orig(self);
         }
 
         private static void ChangeShotgunFireEffect(On.EntityStates.GenericBulletBaseState.orig_DoFireEffects orig, EntityStates.GenericBulletBaseState self)
         {
-            if (self is EntityStates.Commando.CommandoWeapon.FireShotgunBlast)
+            if (self is EntityStates.Commando.CommandoWeapon.FireShotgunBlast && ModConfig.CommandoOneGun.Value)
                 self.muzzleName = "MuzzleLeft";
 
             orig(self);
@@ -893,26 +891,21 @@ namespace VRMod
         {
             if (IsLocalPlayer(self.outer.GetComponent<CharacterBody>()) && self is EntityStates.Commando.CommandoWeapon.FireShotgunBlast)
             {
+                Animator animator;
                 if (ModConfig.CommandoOneGun.Value)
                 {
                     // Set animations to only happen on non dom hand
-                    Animator animator = GetHandAnimator(false);
-
-                    if (animator)
-                        animator.SetTrigger("Primary");
-                    // Aim from non dom account muzzle
-                    return orig(self, GetHandRayByDominance(false));
-                } else
-                {
-                    Animator animator = GetHandAnimator(!self.muzzleName.Contains("Left"));
-
-                    if (animator)
-                        animator.SetTrigger("Primary");
+                    animator = GetHandAnimator(false);
+                    aimRay = GetHandRayByDominance(false);
                 }
-
-                
+                else
+                {
+                    animator = GetHandAnimator(!self.muzzleName.Contains("Left"));
+                }
+                if (animator)
+                    animator.SetTrigger("Primary");
             }
-
+            
             return orig(self, aimRay);
         }
 
@@ -920,33 +913,26 @@ namespace VRMod
         {
             if (IsLocalPlayer(self.outer.GetComponent<CharacterBody>()))
             {
+                Animator animator;
                 if (ModConfig.CommandoOneGun.Value)
                 {
                     targetMuzzle = "MuzzleRight";
-                    Animator animator = GetHandAnimator(true);
+                    animator = GetHandAnimator(true);
 
-                    if (animator)
-                        animator.SetTrigger("Primary");
                 } else
                 {
                     if (targetMuzzle.Contains("Left"))
                     {
                         self.aimRay = GetHandRayByDominance(false);
-
-                        Animator animator = GetHandAnimator(false);
-
-                        if (animator)
-                            animator.SetTrigger("Primary");
+                        animator = GetHandAnimator(false);
                     }
                     else
                     {
-                        Animator animator = GetHandAnimator(true);
-
-                        if (animator)
-                            animator.SetTrigger("Primary");
+                        animator = GetHandAnimator(true);    
                     }
                 }
-                
+                if (animator)
+                    animator.SetTrigger("Primary");
             }
 
             orig(self, targetMuzzle);
