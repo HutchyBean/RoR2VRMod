@@ -884,7 +884,9 @@ namespace VRMod
 
         private static void ChangeShotgunFireEffect(On.EntityStates.GenericBulletBaseState.orig_DoFireEffects orig, EntityStates.GenericBulletBaseState self)
         {
-            self.muzzleName = "MuzzleLeft";
+            if (self is EntityStates.Commando.CommandoWeapon.FireShotgunBlast)
+                self.muzzleName = "MuzzleLeft";
+
             orig(self);
         }
         private static BulletAttack ChangeShotgunMuzzle(On.EntityStates.GenericBulletBaseState.orig_GenerateBulletAttack orig, EntityStates.GenericBulletBaseState self, Ray aimRay)
