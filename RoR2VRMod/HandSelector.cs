@@ -28,6 +28,7 @@ namespace VRMod
         private void Awake()
         {
             SetCurrentHand(pointerHand);
+            ray.material.color = new Color(1, 0.75f, 0.75f, 0.75f);
         }
 
         private void Update()
